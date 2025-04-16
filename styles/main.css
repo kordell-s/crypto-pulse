@@ -1,0 +1,17 @@
+body{
+    font-family: 'Roboto', sans-serif;
+ 
+}
+
+.btn-primary{
+    background-color: #33FF85;
+    color:#0d1117;
+    border: none;
+    font-weight: bold;
+    padding: 0.6rem 1.2rem;
+}
+h1, h2, h3, h4 {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
