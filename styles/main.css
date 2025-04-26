@@ -3,12 +3,23 @@ body{
  
 }
 
-.btn-primary{
+.btn-primary, .btn-primary:active, .btn-primary:hover, .btn-primary:focus {
     background-color: #33FF85;
-    color:#0d1117;
+    color: #0d1117;
     border: none;
     font-weight: bold;
     padding: 0.6rem 1.2rem;
+    outline: none;
+    box-shadow: none;
+}
+
+.btn-outline-primary, .btn-outline-primary:active, .btn-outline-primary:hover, .btn-outline-primary:focus {
+    background-color: #0d1117;
+    color:#fff;
+    font-weight: bold;
+    padding: 0.6rem 1.2rem;
+    outline: none;
+    box-shadow: none;
 }
 h1, h2, h3, h4 {
     font-family: 'Roboto', sans-serif;

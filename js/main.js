@@ -26,6 +26,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             ${coin.price_change_percentage_24h.toFixed(2)}%
           </td>
           <td>$${coin.market_cap.toLocaleString()}</td>
+         
         `;
   
         tableBody.appendChild(row);
@@ -66,6 +67,10 @@ document.addEventListener("DOMContentLoaded", async () => {
             ${coin.price_change_percentage_24h.toFixed(2)}%
           </td>
           <td>$${coin.market_cap.toLocaleString()}</td>
+           <td> <button class="add-btn" data-coin="${coin.name}">
+            <i class="bi bi-plus-circle"></i> Add
+          </button>
+          </td>
         `;
 
         tableBody.appendChild(row);
@@ -145,3 +150,29 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
   );
+
+
+  //Function to store coins to portfolio in local storage
+
+  function saveToPortfolio(coin) {
+    let portfolio = JSON.parse(localStorage.getItem("portfolio")) || [];
+    portfolio.push(coin);
+    localStorage.setItem("portfolio", JSON.stringify(portfolio));
+  }
+  // Function to remove coins from portfolio
+  function removeFromPortfolio(coin){
+    let portfolio = JSON.parse(localStorage.getItem("portfolio")) || [];
+    portfolio = portfolio.filter(item => item !== coin);
+    localStorage.setItem("portfolio", JSON.stringify(portfolio));
+  }
+
+  //Event listener for add button
+  const addButtons = document.querySelectorAll(".add-btn");
+
+  addButtons.forEach(button => {
+    button.addEventListener("click", function() {
+      const coinName = this.getAttribute("data-coin");
+      saveToPortfolio(coinName);
+      alert(`${coinName} has been added to your portfolio!`);
+    });
+  });
