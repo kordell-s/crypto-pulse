@@ -67,17 +67,23 @@ document.addEventListener("DOMContentLoaded", async () => {
             ${coin.price_change_percentage_24h.toFixed(2)}%
           </td>
           <td>$${coin.market_cap.toLocaleString()}</td>
-           <td> <button class="add-btn" data-coin="${coin.name}">
+           <td> 
+           <button class="add-btn" data-coin="${coin.name}">
             <i class="bi bi-plus-circle"></i> Add
           </button>
           </td>
         `;
 
+        const addButton = row.querySelector(".add-btn");
+        addButton.addEventListener("click", function() {
+          saveToPortfolio(coin.name);
+          alert(`${coin.name} has been added to your portfolio!`);
+        });
         tableBody.appendChild(row);
       });
     } catch (error) {
       if (tableBody) {
-        tableBody.innerHTML = `<tr><td colspan="5" class="text-danger">Failed to load data. API rate limit may be exceeded.</td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="5" class="text-danger">Failed to load data.</td></tr>`;
       }
       console.error("Error fetching extended coin data:", error);
     }
@@ -114,31 +120,8 @@ if (searchInput) {
   searchInput.addEventListener("keyup", filterTable);
 }
 
-
-
-  //Function to store coins to portfolio in local storage
-  function saveToPortfolio(coin) {
-    let portfolio = JSON.parse(localStorage.getItem("portfolio")) || [];
-    portfolio.push(coin);
-    localStorage.setItem("portfolio", JSON.stringify(portfolio));
-  }
-  // Function to remove coins from portfolio
-  function removeFromPortfolio(coin){
-    let portfolio = JSON.parse(localStorage.getItem("portfolio")) || [];
-    portfolio = portfolio.filter(item => item !== coin);
-    localStorage.setItem("portfolio", JSON.stringify(portfolio));
-  }
-
-  //Event listener for add button
-  const addButtons = document.querySelectorAll(".add-btn");
-
-  addButtons.forEach(button => {
-    button.addEventListener("click", function() {
-      const coinName = this.getAttribute("data-coin");
-      saveToPortfolio(coinName);
-      alert(`${coinName} has been added to your portfolio!`);
-    });
-  });
+ 
+ 
 
 
 
