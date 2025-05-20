@@ -41,6 +41,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   
   await populateTable("dashboard-table-body");
+
+
   
   // Function to load more coins for the coin page
   const populateExtendedTable = async (tableId, count = 50) => {
@@ -76,8 +78,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         const addButton = row.querySelector(".add-btn");
         addButton.addEventListener("click", function() {
-          saveToPortfolio(coin.name);
-          alert(`${coin.name} has been added to your portfolio!`);
+          saveToWatchList({
+            id: coin.id,
+            name: coin.name,
+            image: coin.image,
+            current_price: coin.current_price,
+          });
+          alert(`${coin.name} has been added to your watchlist!`);
         });
         tableBody.appendChild(row);
       });
@@ -90,6 +97,18 @@ document.addEventListener("DOMContentLoaded", async () => {
   };
   await populateExtendedTable("coin-page-body");
 });
+  
+   // Function to save coins to watchlist
+   function saveToWatchList(coin) {
+    const list = JSON.parse(localStorage.getItem("watchlist")) || [];
+    if (!list.find(c => c.id === coin.id)) {
+      list.push(coin);
+      localStorage.setItem("watchlist", JSON.stringify(list));
+      alert(`${coin.name} added to your watchlist.`);
+    } else {
+      alert(`${coin.name} is already in your watchlist.`);
+    }
+  }
   
 
 //Search functionality
@@ -121,7 +140,8 @@ if (searchInput) {
 }
 
  
- 
+
+
 
 
 
