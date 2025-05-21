@@ -49,7 +49,7 @@ async function renderWatchlist() {
           </td>
           <td>$${coin.current_price.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
           <td>
-            <button class="btn btn-sm btn-primary" data-id="${coin.id}" data-name="${coin.name}" data-symbol="${coin.symbol}" onclick="openBuyModal(this)">Buy</button>
+            <button class="btn btn-sm btn-success" data-id="${coin.id}" data-name="${coin.name}" data-symbol="${coin.symbol}" onclick="openBuyModal(this)">Buy</button>
             <button class="btn btn-sm btn-danger" onclick="removeFromWatchList('${coin.id}')">Remove</button>          </td>
         `;
         tableBody.appendChild(row);
@@ -101,21 +101,20 @@ function openBuyModal(button) {
   
 
    //Function to store coins to portfolio in local storage
- function saveToPortfolio(coinName, price, amount) {
-    let portfolio = JSON.parse(localStorage.getItem("portfolio")) || [];
+ function saveToPortfolio(coinId, price, quantity) {
+    const portfolio = JSON.parse(localStorage.getItem("portfolio")) || [];
 
-    const existing = portfolio.find(c => c.name == coinName);
+    const existing = portfolio.find(c => c.id == coinId);
 
  if (existing){
- existing.amount += amount;
+  existing.totalInvested += price * quantity;
+ existing.quantity += quantity;
  existing.price = price;
  }else{
-  portfolio.push({
-    name:coinName,
-    price: price,
-    amount:amount,
-  });
+  portfolio.push({id: coinId, price, quantity, totalInvested: price * quantity});
+
  }
+ logTransaction("buy", coinId, quantity, price);
 
  localStorage.setItem("portfolio", JSON.stringify(portfolio))
   

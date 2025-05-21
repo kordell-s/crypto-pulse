@@ -70,13 +70,14 @@ document.addEventListener("DOMContentLoaded", async () => {
           </td>
           <td>$${coin.market_cap.toLocaleString()}</td>
            <td> 
-           <button class="add-btn" data-coin="${coin.name}">
-            <i class="bi bi-plus-circle"></i> Add
+          <button class="btn btn-success add-btn" id="add-btn-${coin.id}">
+          <i class="bi bi-plus-circle"></i> Add
           </button>
           </td>
         `;
 
         const addButton = row.querySelector(".add-btn");
+        const icon = addButton.querySelector("i");
         addButton.addEventListener("click", function() {
           saveToWatchList({
             id: coin.id,
@@ -84,7 +85,20 @@ document.addEventListener("DOMContentLoaded", async () => {
             image: coin.image,
             current_price: coin.current_price,
           });
-          alert(`${coin.name} has been added to your watchlist!`);
+
+          icon.classList.remove("bi-plus-circle");
+          icon.classList.add("bi-check-circle", "text-white");
+
+          //animation
+          
+          setTimeout(() => {
+            icon.classList.remove("bi-check-circle");
+            icon.classList.add("bi-plus-circle");
+          }, 1500);
+        
+      
+          
+         
         });
         tableBody.appendChild(row);
       });
@@ -104,7 +118,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!list.find(c => c.id === coin.id)) {
       list.push(coin);
       localStorage.setItem("watchlist", JSON.stringify(list));
-      alert(`${coin.name} added to your watchlist.`);
     } else {
       alert(`${coin.name} is already in your watchlist.`);
     }
