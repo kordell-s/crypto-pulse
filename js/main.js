@@ -160,16 +160,41 @@ if (searchInput) {
 
   //html template scripts
 
-  function loadComponent(id, file){
-    fetch(file)
-      .then(response => response.text())
-      .then(data => {
-        document.getElementById(id).innerHTML = data;
-      })
-      .catch(error => console.error('Error loading component:', error));
-  }
+  
 
-  document.addEventListener("DOMContentLoaded", function() {
-    loadComponent("navbar-container", "/components/navbar.html");
-    loadComponent("footer-container", "/components/footer.html");
-  });
+  async function initShell() {
+    try {
+      // 1) Load navbar partial
+      await loadComponent("navbar-container", "../components/navbar.html");
+      console.log("✅ Navbar loaded");
+  
+      // 2) Dynamically load navbar.js now that the markup is in place
+      const navScript = document.createElement("script");
+      navScript.src = "../js/navbar.js";      
+      navScript.onload = () => console.log("✅ navbar.js executed");
+      navScript.onerror = () => console.error("❌ Failed to load navbar.js");
+      document.body.appendChild(navScript);
+  
+      // 3) Load footer partial (no post-logic needed)
+      await loadComponent("footer-container", "../components/footer.html");
+      console.log("✅ Footer loaded");
+  
+    } catch (err) {
+      console.error("Shell init failed:", err);
+    }
+  }
+  
+  window.addEventListener("load", initShell);
+  
+  function loadComponent(id, file) {
+    return fetch(file)
+      .then(response => {
+        if (!response.ok) throw new Error(`Failed to load ${file}`);
+        return response.text();
+      })
+      .then(html => {
+        const container = document.getElementById(id).innerHTML = html;
+        if (!container) throw new Error(`No element with ID ${id}`);
+        container.innerHTML = html;
+      });
+  }

@@ -14,6 +14,8 @@ document.addEventListener("DOMContentLoaded", () => {
   
     // Pre-fill form with existing data
     usernameInput.value = user.name || "";
+    emailInput.value = user.email || "";
+    passwordInput.value = user.password || "";
     avatarInput.value = user.avatarUrl || "";
     avatarPreview.src = user.avatarUrl || "https://via.placeholder.com/150";
   
@@ -27,6 +29,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const updatedUser = {
         ...user,
         name: usernameInput.value,
+        email: emailInput.value,
+        password: passwordInput.value,
         avatarUrl: avatarInput.value
       };
   

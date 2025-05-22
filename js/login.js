@@ -75,5 +75,5 @@ document.addEventListener('DOMContentLoaded', function () {
 
     localStorage.setItem("loggedIn", true);
     alert("Login successful!");
-    window.location.href = "pages/portfolio.html";
+    window.location.href = "/pages/portfolio.html";
   });

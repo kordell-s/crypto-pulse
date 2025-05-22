@@ -29,11 +29,12 @@
             </div>
 
             <!-- User Info (shown if logged in) -->
-            <div id="user-info" class="d-flex align-items-center gap-2" style="display: none;">
-                <img id="user-avatar" src="/assets/default-avatar.png" alt="Avatar" class="rounded-circle" width="32"
+            <div id="user-info" class="d-none align-items-center gap-2">
+                <img id="user-avatar" src="/assets/img/avatar.jpg" alt="Avatar" class="rounded-circle" width="32"
                     height="32">
                 <span id="username-display" class="fw-medium"></span>
-                <button onclick="logout()" class="btn btn-outline-danger btn-sm">Logout</button>
+                <button id="logout-button" onclick="logout()" class="btn btn-outline-danger btn-sm">Logout</button>
             </div>
         </div>
+    </div>
 </nav>
