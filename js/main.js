@@ -113,7 +113,16 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
   
    // Function to save coins to watchlist
-   function saveToWatchList(coin) {
+  function saveToWatchList(coin) {
+    // Check if user is logged in
+    const isLoggedIn = localStorage.getItem("user") !== null;
+    
+    if (!isLoggedIn) {
+      alert("Please log in to add coins to your watchlist.");
+      window.location.href = "login.html";
+      return;
+    }
+    
     const list = JSON.parse(localStorage.getItem("watchlist")) || [];
     if (!list.find(c => c.id === coin.id)) {
       list.push(coin);
@@ -198,3 +207,100 @@ if (searchInput) {
         container.innerHTML = html;
       });
   }
+
+  //Popular Coin Cards carousel
+    async function displayPopularCoins() {
+      try {
+        const response = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=8&page=1');
+        const coins = await response.json();
+        
+        const popularCoinsContainer = document.getElementById('popular-coins-cards');
+        if (!popularCoinsContainer) return;
+        
+        // Create carousel structure
+        popularCoinsContainer.innerHTML = `
+          <div id="coinCarousel" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#coinCarousel" data-bs-slide="prev">
+              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#coinCarousel" data-bs-slide="next">
+              <span class="carousel-control-next-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Next</span>
+            </button>
+          </div>
+        `;
+        
+        const carouselInner = popularCoinsContainer.querySelector('.carousel-inner');
+        
+        // Create slides - 4 coins per slide
+        for (let i = 0; i < coins.length; i += 4) {
+          const slideCoins = coins.slice(i, i + 4);
+          const isActive = i === 0 ? 'active' : '';
+          
+          let slideHTML = `<div class="carousel-item ${isActive}"><div class="row">`;
+          
+          slideCoins.forEach(coin => {
+            const priceChangeClass = coin.price_change_percentage_24h >= 0 ? 'text-success' : 'text-danger';
+            const priceChangeIcon = coin.price_change_percentage_24h >= 0 ? 'bi-arrow-up' : 'bi-arrow-down';
+            
+            slideHTML += `
+              <div class="col-md-3 mb-4">
+                <div class="card h-100 shadow-sm">
+                  <div class="card-body text-center">
+                    <img src="${coin.image}" alt="${coin.name}" class="coin-image mb-3" style="width: 64px; height: 64px;">
+                    <h5 class="card-title">${coin.name} (${coin.symbol.toUpperCase()})</h5>
+                    <p class="card-text fw-bold">$${coin.current_price.toLocaleString()}</p>
+                    <p class="card-text ${priceChangeClass}">
+                      <i class="bi ${priceChangeIcon}"></i>
+                      ${Math.abs(coin.price_change_percentage_24h).toFixed(2)}%
+                    </p>
+                    <button class="btn btn-primary btn-sm add-to-watchlist" data-coin-id="${coin.id}">
+                      Add to Watchlist
+                    </button>
+                  </div>
+                </div>
+              </div>
+            `;
+          });
+          
+          slideHTML += `</div></div>`;
+          carouselInner.innerHTML += slideHTML;
+        }
+        
+        // Add event listeners to the watchlist buttons
+        document.querySelectorAll('.add-to-watchlist').forEach(button => {
+          button.addEventListener('click', function() {
+            saveToWatchList(coins.find(coin => coin.id === this.getAttribute('data-coin-id')));
+            
+            // Show feedback
+            const oldText = this.innerHTML;
+            this.innerHTML = '<i class="bi bi-check"></i> Added';
+            this.classList.remove('btn-primary');
+            this.classList.add('btn-success');
+            
+            setTimeout(() => {
+              this.innerHTML = oldText;
+              this.classList.remove('btn-success');
+              this.classList.add('btn-primary');
+            }, 1500);
+          });
+        });
+
+        // Initialize the carousel with automatic sliding
+        new bootstrap.Carousel(document.getElementById('coinCarousel'), {
+          interval: 3000,
+          wrap: true
+        });
+        
+      } catch (error) {
+        console.error('Error fetching popular coins:', error);
+      }
+    }
+
+    // Call the function when the DOM is fully loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      displayPopularCoins();
+    });

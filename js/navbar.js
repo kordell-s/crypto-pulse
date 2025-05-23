@@ -31,3 +31,19 @@
     });
   })();
   
+// Toggle visibility of watchlist and portfolio links based on login status
+(() => {
+    const watchlistLink = document.getElementById("watchlist-link");
+    const portfolioLink = document.getElementById("portfolio-link");
+    const isLoggedIn = localStorage.getItem("loggedIn") === "true";
+
+    if (watchlistLink && portfolioLink) {
+        if (isLoggedIn) {
+            watchlistLink.classList.remove("d-none");
+            portfolioLink.classList.remove("d-none");
+        } else {
+            watchlistLink.classList.add("d-none");
+            portfolioLink.classList.add("d-none");
+        }
+    }
+})();
