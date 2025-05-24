@@ -1,6 +1,3 @@
-
-
-
 function removeFromWatchList(coinId){
     let list = JSON.parse(localStorage.getItem("watchlist")) || [];
     list = list.filter(c => c.id !== coinId);
@@ -26,7 +23,7 @@ async function renderWatchlist() {
     const ids = list.map(c => c.id).filter(Boolean).join(",");
   
     try {
-      const res = await fetch(`https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${ids}`);
+      const res = await fetch(`/api/coins?ids=${ids}`);;
       const coinsWithPrices = await res.json();
   
       // Ensure API returned an array
@@ -84,7 +81,8 @@ function openBuyModal(button) {
     const coinId = document.getElementById("buyCoinId").value;
     const quantity = parseFloat(document.getElementById("buyQuantity").value);
   
-    const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${coinId}&vs_currencies=usd`);
+    const res = await fetch(`/api/price?ids=${coinId}&vs_currencies=usd`);
+
     const data = await res.json();
     const price = data[coinId]?.usd;
   
@@ -114,7 +112,6 @@ function openBuyModal(button) {
   portfolio.push({id: coinId, price, quantity, totalInvested: price * quantity});
 
  }
- logTransaction("buy", coinId, quantity, price);
 
  localStorage.setItem("portfolio", JSON.stringify(portfolio))
   

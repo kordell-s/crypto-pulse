@@ -1,15 +1,38 @@
-// scripts/main.js
+document.addEventListener('DOMContentLoaded', () => {
+  if (typeof firebase === 'undefined') {
+    console.error('Firebase not loaded');
+    return;
+  }
+
+  firebase.auth().onAuthStateChanged(async (user) => {
+    console.log("Auth state confirmed in main.js:", user ? "logged in" : "logged out");
+
+    // Load data for everyone, even guests (optional)
+    await populateTable("dashboard-table-body");
+    await populateExtendedTable("coin-page-body");
+
+    // If not logged in, block saving to watchlist
+    if (!user) {
+      document.querySelectorAll(".add-btn, .add-to-watchlist").forEach(button => {
+        button.addEventListener("click", () => {
+          alert("Please log in to add coins to your watchlist.");
+          window.location.href = "/login.html";
+        });
+      });
+    }
+  });
+
+  displayPopularCoins(); // okay to call outside auth check
+});
 
 //API scripts
-document.addEventListener("DOMContentLoaded", async () => {
+
   const populateTable = async (tableId) => {
     const tableBody = document.getElementById(tableId);
     if (!tableBody) return; 
     
     try {
-      const res = await fetch(
-        "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&page=1"
-      );
+      const res = await fetch("/api/coins");
       const coins = await res.json();
   
       coins.forEach((coin, index) => {
@@ -40,21 +63,24 @@ document.addEventListener("DOMContentLoaded", async () => {
   };
 
   
-  await populateTable("dashboard-table-body");
 
 
   
   // Function to load more coins for the coin page
-  const populateExtendedTable = async (tableId, count = 50) => {
+  const populateExtendedTable = async (tableId, count = 20) => {
     const tableBody = document.getElementById(tableId);
     if (!tableBody) return;
     
     try {
-      const res = await fetch(
-        `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=${count}&page=1`
-      );
+      const res = await fetch("/api/coins");
       const coins = await res.json();
-
+  
+      if (!Array.isArray(coins)) {
+        console.error("⚠️ Expected an array but got:", coins);
+        tableBody.innerHTML = `<tr><td colspan="6" class="text-danger">Error loading coins</td></tr>`;
+        return;
+      }
+  
       coins.forEach((coin, index) => {
         const row = document.createElement("tr");
 
@@ -109,20 +135,17 @@ document.addEventListener("DOMContentLoaded", async () => {
       console.error("Error fetching extended coin data:", error);
     }
   };
-  await populateExtendedTable("coin-page-body");
-});
   
    // Function to save coins to watchlist
-  function saveToWatchList(coin) {
-    // Check if user is logged in
-    const isLoggedIn = localStorage.getItem("user") !== null;
-    
-    if (!isLoggedIn) {
+   function saveToWatchList(coin) {
+    const user = firebase.auth().currentUser;
+  
+    if (!user) {
       alert("Please log in to add coins to your watchlist.");
       window.location.href = "login.html";
       return;
     }
-    
+  
     const list = JSON.parse(localStorage.getItem("watchlist")) || [];
     if (!list.find(c => c.id === coin.id)) {
       list.push(coin);
@@ -131,6 +154,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       alert(`${coin.name} is already in your watchlist.`);
     }
   }
+  
   
 
 //Search functionality
@@ -161,58 +185,13 @@ if (searchInput) {
   searchInput.addEventListener("keyup", filterTable);
 }
 
- 
 
-
-
-
-
-  //html template scripts
-
-  
-
-  async function initShell() {
-    try {
-      // 1) Load navbar partial
-      await loadComponent("navbar-container", "../components/navbar.html");
-      console.log("✅ Navbar loaded");
-  
-      // 2) Dynamically load navbar.js now that the markup is in place
-      const navScript = document.createElement("script");
-      navScript.src = "../js/navbar.js";      
-      navScript.onload = () => console.log("✅ navbar.js executed");
-      navScript.onerror = () => console.error("❌ Failed to load navbar.js");
-      document.body.appendChild(navScript);
-  
-      // 3) Load footer partial (no post-logic needed)
-      await loadComponent("footer-container", "../components/footer.html");
-      console.log("✅ Footer loaded");
-  
-    } catch (err) {
-      console.error("Shell init failed:", err);
-    }
-  }
-  
-  window.addEventListener("load", initShell);
-  
-  function loadComponent(id, file) {
-    return fetch(file)
-      .then(response => {
-        if (!response.ok) throw new Error(`Failed to load ${file}`);
-        return response.text();
-      })
-      .then(html => {
-        const container = document.getElementById(id).innerHTML = html;
-        if (!container) throw new Error(`No element with ID ${id}`);
-        container.innerHTML = html;
-      });
-  }
 
   //Popular Coin Cards carousel
     async function displayPopularCoins() {
       try {
-        const response = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=8&page=1');
-        const coins = await response.json();
+        const res =  await fetch("/api/coins");        
+        const coins = await res.json();
         
         const popularCoinsContainer = document.getElementById('popular-coins-cards');
         if (!popularCoinsContainer) return;
@@ -299,8 +278,3 @@ if (searchInput) {
         console.error('Error fetching popular coins:', error);
       }
     }
-
-    // Call the function when the DOM is fully loaded
-    document.addEventListener('DOMContentLoaded', function() {
-      displayPopularCoins();
-    });
